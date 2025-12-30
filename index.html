@@ -2,236 +2,266 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>New Year Countdown 💛</title>
+<title>New Year 💛</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 :root {
-  --accent: #ffd700;
-  --bg: #0f0f0f;
-  --card: #1a1a1a;
-  --text: #ffffff;
+  --bg: #fffdf5;
+  --card: #fff7cc;
+  --accent: #f6d365;
+  --accent2: #fda085;
+  --text: #3a2f1d;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: var(--bg);
+  font-family: "Poppins", Arial, sans-serif;
+  background: linear-gradient(180deg, var(--bg), #fff3b0);
   color: var(--text);
   display: flex;
   justify-content: center;
-  align-items: center;
   min-height: 100vh;
 }
 
 .container {
-  width: 90%;
+  width: 100%;
   max-width: 900px;
+  padding: 20px;
+}
+
+.card {
   background: var(--card);
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 0 35px rgba(255,215,0,0.3);
-  text-align: center;
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0 10px 40px rgba(246,211,101,0.35);
+  animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 h1 {
-  color: var(--accent);
+  text-align: center;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 #countdown {
   font-size: 1.6rem;
+  text-align: center;
   margin: 20px 0;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 button {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
   border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  color: #fff;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 10px;
 }
 
-textarea, input {
+input, textarea, select {
   width: 100%;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
-  margin-top: 10px;
-}
-
-.media {
-  margin-top: 20px;
-  text-align: left;
-}
-
-.media img {
-  max-width: 100%;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-.media a {
-  color: var(--accent);
-  display: block;
   margin-top: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  border-radius: 14px;
+  background: #ffeaa7;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+
+.editor-section {
+  margin-top: 20px;
+}
+
+.preview-mobile {
+  max-width: 375px;
+  margin: auto;
+  border: 3px dashed var(--accent);
+  border-radius: 20px;
+}
+
+/* Spotify Wrapped style floating shapes */
+.shape {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, var(--accent), transparent);
+  animation: float 8s infinite alternate;
+  opacity: 0.4;
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-60px); }
 }
 </style>
 </head>
 
 <body>
 
+<div class="shape" style="top:10%;left:10%"></div>
+<div class="shape" style="top:70%;left:80%"></div>
+
 <div class="container">
 
-  <!-- PUBLIC VIEW -->
-  <div id="publicView">
-    <h1 id="title">✨ Counting Down to 2026 ✨</h1>
-    <div id="countdown"></div>
+<!-- PUBLIC VIEW -->
+<div id="public" class="card">
+  <h1 id="title">Counting Down to 2026 💛</h1>
+  <div id="countdown"></div>
 
-    <div id="greeting" class="hidden">
-      <h1 id="greetText">Happy New Year, my love 💛</h1>
-      <p id="messageText">
-        This new year starts with you, and I’m grateful for every moment we share.
-      </p>
-    </div>
-
-    <button onclick="openEditor()">Editor Login</button>
+  <div id="reveal" class="hidden">
+    <h1 id="greeting">Happy New Year, my love 🌼</h1>
+    <p id="message">Every year is better with you.</p>
+    <audio id="music" controls></audio>
   </div>
 
-  <!-- EDITOR LOGIN -->
-  <div id="login" class="hidden">
-    <h1>🔐 Editor Access</h1>
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="checkPassword()">Enter</button>
+  <button onclick="openEditor()">Editor Login</button>
+</div>
+
+<!-- EDITOR -->
+<div id="editor" class="card hidden">
+  <h1>Editor Panel ✨</h1>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('content')">✍️ Content</div>
+    <div class="tab" onclick="showTab('theme')">🎨 Theme</div>
+    <div class="tab" onclick="showTab('music')">🎶 Music</div>
+    <div class="tab" onclick="showTab('preview')">👀 Preview</div>
   </div>
 
-  <!-- EDITOR PANEL -->
-  <div id="editor" class="hidden">
-    <h1>✍️ Edit Your New Year Message</h1>
-
-    <textarea id="editGreeting" placeholder="Greeting title"></textarea>
-    <textarea id="editMessage" placeholder="Message text"></textarea>
-
-    <input type="file" id="fileUpload" accept="image/*,.pdf">
-    <button onclick="addMedia()">Add Image / PDF</button>
-
-    <div id="mediaList" class="media"></div>
-
-    <button onclick="closeEditor()">Exit Editor</button>
+  <!-- CONTENT -->
+  <div id="content" class="editor-section">
+    <input id="editTitle" placeholder="Title">
+    <textarea id="editGreeting" placeholder="Greeting"></textarea>
+    <textarea id="editMessage" placeholder="Message"></textarea>
   </div>
+
+  <!-- THEME -->
+  <div id="theme" class="editor-section hidden">
+    <label>Accent Color</label>
+    <input type="color" id="accentPicker">
+  </div>
+
+  <!-- MUSIC -->
+  <div id="musicTab" class="editor-section hidden">
+    <label>Upload Song (mp3)</label>
+    <input type="file" accept="audio/*" id="songUpload">
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="preview" class="editor-section hidden">
+    <button onclick="forceReveal()">Preview After Countdown</button>
+    <div class="preview-mobile" id="previewBox"></div>
+  </div>
+
+  <button onclick="closeEditor()">Exit Editor</button>
+</div>
 
 </div>
 
 <script>
-const TARGET_DATE = new Date("Jan 1, 2026 00:00:00").getTime();
-const EDITOR_PASSWORD = "myLove2026";
+const TARGET = new Date("Jan 1, 2026 00:00:00").getTime();
+const PASSWORD = "love2026";
 
-/* Countdown */
 function updateCountdown() {
-  const now = new Date().getTime();
-  const diff = TARGET_DATE - now;
-  const el = document.getElementById("countdown");
-
+  const now = Date.now();
+  const diff = TARGET - now;
   if (diff <= 0) {
-    el.classList.add("hidden");
-    document.getElementById("greeting").classList.remove("hidden");
+    document.getElementById("countdown").classList.add("hidden");
+    document.getElementById("reveal").classList.remove("hidden");
     return;
   }
-
-  const d = Math.floor(diff / (1000*60*60*24));
-  const h = Math.floor((diff / (1000*60*60)) % 24);
-  const m = Math.floor((diff / (1000*60)) % 60);
-  const s = Math.floor((diff / 1000) % 60);
-
-  el.innerText = `${d}d ${h}h ${m}m ${s}s`;
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor(diff/3600000)%24;
+  const m = Math.floor(diff/60000)%60;
+  const s = Math.floor(diff/1000)%60;
+  countdown.innerText = `${d}d ${h}h ${m}m ${s}s`;
 }
-
-setInterval(updateCountdown, 1000);
+setInterval(updateCountdown,1000);
 updateCountdown();
 
-/* Editor access */
+/* Editor */
 function openEditor() {
-  document.getElementById("publicView").classList.add("hidden");
-  document.getElementById("login").classList.remove("hidden");
-}
-
-function checkPassword() {
-  if (document.getElementById("password").value === EDITOR_PASSWORD) {
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("editor").classList.remove("hidden");
-    loadEditorData();
-  } else {
-    alert("Wrong password");
+  const pass = prompt("Password?");
+  if (pass === PASSWORD) {
+    public.classList.add("hidden");
+    editor.classList.remove("hidden");
+    loadData();
   }
 }
 
 function closeEditor() {
-  document.getElementById("editor").classList.add("hidden");
-  document.getElementById("publicView").classList.remove("hidden");
+  editor.classList.add("hidden");
+  public.classList.remove("hidden");
 }
 
-/* Save & Load text */
-function loadEditorData() {
-  editGreeting.value = localStorage.getItem("greet") || greetText.innerText;
-  editMessage.value = localStorage.getItem("msg") || messageText.innerText;
-  loadMedia();
+function showTab(name) {
+  document.querySelectorAll(".editor-section").forEach(e=>e.classList.add("hidden"));
+  document.getElementById(name).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  event.target.classList.add("active");
 }
 
-editGreeting.oninput = () => {
-  localStorage.setItem("greet", editGreeting.value);
-  greetText.innerText = editGreeting.value;
+/* Save Content */
+["editTitle","editGreeting","editMessage"].forEach(id=>{
+  document.getElementById(id).oninput = ()=>{
+    localStorage.setItem(id, document.getElementById(id).value);
+    title.innerText = localStorage.getItem("editTitle");
+    greeting.innerText = localStorage.getItem("editGreeting");
+    message.innerText = localStorage.getItem("editMessage");
+  }
+});
+
+/* Theme */
+accentPicker.oninput = ()=>{
+  document.documentElement.style.setProperty("--accent", accentPicker.value);
 };
 
-editMessage.oninput = () => {
-  localStorage.setItem("msg", editMessage.value);
-  messageText.innerText = editMessage.value;
-};
-
-/* Media upload */
-function addMedia() {
-  const file = fileUpload.files[0];
-  if (!file) return;
-
+/* Music */
+songUpload.onchange = ()=>{
+  const file = songUpload.files[0];
   const reader = new FileReader();
-  reader.onload = () => {
-    const items = JSON.parse(localStorage.getItem("media")) || [];
-    items.push({ name: file.name, data: reader.result });
-    localStorage.setItem("media", JSON.stringify(items));
-    loadMedia();
-  };
+  reader.onload = ()=> music.src = reader.result;
   reader.readAsDataURL(file);
-}
-
-function loadMedia() {
-  const list = document.getElementById("mediaList");
-  list.innerHTML = "";
-  const items = JSON.parse(localStorage.getItem("media")) || [];
-
-  items.forEach(item => {
-    if (item.data.startsWith("data:image")) {
-      const img = document.createElement("img");
-      img.src = item.data;
-      list.appendChild(img);
-    } else {
-      const link = document.createElement("a");
-      link.href = item.data;
-      link.textContent = item.name;
-      link.target = "_blank";
-      list.appendChild(link);
-    }
-  });
-}
-
-/* Load saved content on start */
-window.onload = () => {
-  greetText.innerText = localStorage.getItem("greet") || greetText.innerText;
-  messageText.innerText = localStorage.getItem("msg") || messageText.innerText;
 };
+
+/* Preview */
+function forceReveal() {
+  previewBox.innerHTML = document.getElementById("reveal").outerHTML;
+}
+
+function loadData() {
+  editTitle.value = localStorage.getItem("editTitle") || title.innerText;
+  editGreeting.value = localStorage.getItem("editGreeting") || greeting.innerText;
+  editMessage.value = localStorage.getItem("editMessage") || message.innerText;
+}
 </script>
 
 </body>
