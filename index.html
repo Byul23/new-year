@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Year Vault 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --accent: #ffd700;
+  --bg: #0f0f0f;
+  --card: #1a1a1a;
+  --text: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 800px;
+  background: var(--card);
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 0 30px rgba(255,215,0,0.3);
+  text-align: center;
+}
+
+h1 { color: var(--accent); }
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  background: var(--accent);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.memory {
+  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  margin-top: 12px;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.hidden { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="login">
+  <h1>🔐 Enter the Vault</h1>
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="checkPassword()">Unlock</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main" class="hidden">
+  <h1 contenteditable="true" id="title">✨ My New Year Vault 2026 ✨</h1>
+  <p contenteditable="true" id="intro">
+    This is my private space for memories, reflections, and hopes.
+  </p>
+
+  <div id="countdown"></div>
+
+  <textarea id="noteInput" placeholder="Write a memory or note..."></textarea>
+  <button onclick="addMemory()">Save Memory</button>
+
+  <div id="memories"></div>
+</div>
+
+</div>
+
+<script>
+const PASSWORD = "my2026";
+const unlockTime = new Date("Jan 1, 2026 00:00:00").getTime();
+
+function checkPassword() {
+  const input = document.getElementById("password").value;
+  if (input === PASSWORD) {
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("main").classList.remove("hidden");
+    loadData();
+  } else {
+    alert("Wrong password.");
+  }
+}
+
+function updateCountdown() {
+  const now = new Date().getTime();
+  const diff = unlockTime - now;
+
+  const el = document.getElementById("countdown");
+
+  if (diff <= 0) {
+    el.innerHTML = "🎉 Welcome to 2026!";
+    return;
+  }
+
+  const d = Math.floor(diff / (1000*60*60*24));
+  const h = Math.floor((diff / (1000*60*60)) % 24);
+  const m = Math.floor((diff / (1000*60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+
+  el.innerHTML = `Unlocks in: ${d}d ${h}h ${m}m ${s}s`;
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+/* Memories */
+function addMemory() {
+  const text = document.getElementById("noteInput").value;
+  if (!text) return;
+
+  const data = JSON.parse(localStorage.getItem("vaultMemories")) || [];
+  data.push(text);
+  localStorage.setItem("vaultMemories", JSON.stringify(data));
+  document.getElementById("noteInput").value = "";
+  renderMemories();
+}
+
+function renderMemories() {
+  const box = document.getElementById("memories");
+  box.innerHTML = "";
+  const data = JSON.parse(localStorage.getItem("vaultMemories")) || [];
+  data.forEach((m, i) => {
+    const div = document.createElement("div");
+    div.className = "memory";
+    div.contentEditable = true;
+    div.innerText = m;
+    div.oninput = () => {
+      data[i] = div.innerText;
+      localStorage.setItem("vaultMemories", JSON.stringify(data));
+    };
+    box.appendChild(div);
+  });
+}
+
+function loadData() {
+  document.getElementById("title").innerText =
+    localStorage.getItem("vaultTitle") || document.getElementById("title").innerText;
+
+  document.getElementById("intro").innerText =
+    localStorage.getItem("vaultIntro") || document.getElementById("intro").innerText;
+
+  renderMemories();
+}
+
+document.getElementById("title").oninput = () =>
+  localStorage.setItem(
+    "vaultTitle",
+    document.getElementById("title").innerText
+  );
+
+document.getElementById("intro").oninput = () =>
+  localStorage.setItem(
+    "vaultIntro",
+    document.getElementById("intro").innerText
+  );
+
+</script>
+
+</body>
+</html>
