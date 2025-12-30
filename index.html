@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>New Year Vault 2026</title>
+<title>New Year Countdown 💛</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -10,7 +10,7 @@
   --accent: #ffd700;
   --bg: #0f0f0f;
   --card: #1a1a1a;
-  --text: #fff;
+  --text: #ffffff;
 }
 
 body {
@@ -26,44 +26,61 @@ body {
 
 .container {
   width: 90%;
-  max-width: 800px;
+  max-width: 900px;
   background: var(--card);
   padding: 30px;
-  border-radius: 18px;
-  box-shadow: 0 0 30px rgba(255,215,0,0.3);
+  border-radius: 20px;
+  box-shadow: 0 0 35px rgba(255,215,0,0.3);
   text-align: center;
 }
 
-h1 { color: var(--accent); }
+h1 {
+  color: var(--accent);
+}
 
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
+#countdown {
+  font-size: 1.6rem;
+  margin: 20px 0;
+}
+
+.hidden {
+  display: none;
 }
 
 button {
   background: var(--accent);
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
   margin-top: 10px;
 }
 
-.memory {
-  background: rgba(255,255,255,0.05);
-  padding: 12px;
-  margin-top: 12px;
-  border-left: 4px solid var(--accent);
-  border-radius: 8px;
+textarea, input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 10px;
+}
+
+.media {
+  margin-top: 20px;
   text-align: left;
 }
 
-.hidden { display: none; }
+.media img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.media a {
+  color: var(--accent);
+  display: block;
+  margin-top: 8px;
+}
 </style>
 </head>
 
@@ -71,53 +88,58 @@ button {
 
 <div class="container">
 
-<!-- LOGIN -->
-<div id="login">
-  <h1>🔐 Enter the Vault</h1>
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="checkPassword()">Unlock</button>
-</div>
+  <!-- PUBLIC VIEW -->
+  <div id="publicView">
+    <h1 id="title">✨ Counting Down to 2026 ✨</h1>
+    <div id="countdown"></div>
 
-<!-- MAIN CONTENT -->
-<div id="main" class="hidden">
-  <h1 contenteditable="true" id="title">✨ My New Year Vault 2026 ✨</h1>
-  <p contenteditable="true" id="intro">
-    This is my private space for memories, reflections, and hopes.
-  </p>
+    <div id="greeting" class="hidden">
+      <h1 id="greetText">Happy New Year, my love 💛</h1>
+      <p id="messageText">
+        This new year starts with you, and I’m grateful for every moment we share.
+      </p>
+    </div>
 
-  <div id="countdown"></div>
+    <button onclick="openEditor()">Editor Login</button>
+  </div>
 
-  <textarea id="noteInput" placeholder="Write a memory or note..."></textarea>
-  <button onclick="addMemory()">Save Memory</button>
+  <!-- EDITOR LOGIN -->
+  <div id="login" class="hidden">
+    <h1>🔐 Editor Access</h1>
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="checkPassword()">Enter</button>
+  </div>
 
-  <div id="memories"></div>
-</div>
+  <!-- EDITOR PANEL -->
+  <div id="editor" class="hidden">
+    <h1>✍️ Edit Your New Year Message</h1>
+
+    <textarea id="editGreeting" placeholder="Greeting title"></textarea>
+    <textarea id="editMessage" placeholder="Message text"></textarea>
+
+    <input type="file" id="fileUpload" accept="image/*,.pdf">
+    <button onclick="addMedia()">Add Image / PDF</button>
+
+    <div id="mediaList" class="media"></div>
+
+    <button onclick="closeEditor()">Exit Editor</button>
+  </div>
 
 </div>
 
 <script>
-const PASSWORD = "my2026";
-const unlockTime = new Date("Jan 1, 2026 00:00:00").getTime();
+const TARGET_DATE = new Date("Jan 1, 2026 00:00:00").getTime();
+const EDITOR_PASSWORD = "myLove2026";
 
-function checkPassword() {
-  const input = document.getElementById("password").value;
-  if (input === PASSWORD) {
-    document.getElementById("login").classList.add("hidden");
-    document.getElementById("main").classList.remove("hidden");
-    loadData();
-  } else {
-    alert("Wrong password.");
-  }
-}
-
+/* Countdown */
 function updateCountdown() {
   const now = new Date().getTime();
-  const diff = unlockTime - now;
-
+  const diff = TARGET_DATE - now;
   const el = document.getElementById("countdown");
 
   if (diff <= 0) {
-    el.innerHTML = "🎉 Welcome to 2026!";
+    el.classList.add("hidden");
+    document.getElementById("greeting").classList.remove("hidden");
     return;
   }
 
@@ -126,63 +148,90 @@ function updateCountdown() {
   const m = Math.floor((diff / (1000*60)) % 60);
   const s = Math.floor((diff / 1000) % 60);
 
-  el.innerHTML = `Unlocks in: ${d}d ${h}h ${m}m ${s}s`;
+  el.innerText = `${d}d ${h}h ${m}m ${s}s`;
 }
 
 setInterval(updateCountdown, 1000);
 updateCountdown();
 
-/* Memories */
-function addMemory() {
-  const text = document.getElementById("noteInput").value;
-  if (!text) return;
-
-  const data = JSON.parse(localStorage.getItem("vaultMemories")) || [];
-  data.push(text);
-  localStorage.setItem("vaultMemories", JSON.stringify(data));
-  document.getElementById("noteInput").value = "";
-  renderMemories();
+/* Editor access */
+function openEditor() {
+  document.getElementById("publicView").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
 }
 
-function renderMemories() {
-  const box = document.getElementById("memories");
-  box.innerHTML = "";
-  const data = JSON.parse(localStorage.getItem("vaultMemories")) || [];
-  data.forEach((m, i) => {
-    const div = document.createElement("div");
-    div.className = "memory";
-    div.contentEditable = true;
-    div.innerText = m;
-    div.oninput = () => {
-      data[i] = div.innerText;
-      localStorage.setItem("vaultMemories", JSON.stringify(data));
-    };
-    box.appendChild(div);
+function checkPassword() {
+  if (document.getElementById("password").value === EDITOR_PASSWORD) {
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("editor").classList.remove("hidden");
+    loadEditorData();
+  } else {
+    alert("Wrong password");
+  }
+}
+
+function closeEditor() {
+  document.getElementById("editor").classList.add("hidden");
+  document.getElementById("publicView").classList.remove("hidden");
+}
+
+/* Save & Load text */
+function loadEditorData() {
+  editGreeting.value = localStorage.getItem("greet") || greetText.innerText;
+  editMessage.value = localStorage.getItem("msg") || messageText.innerText;
+  loadMedia();
+}
+
+editGreeting.oninput = () => {
+  localStorage.setItem("greet", editGreeting.value);
+  greetText.innerText = editGreeting.value;
+};
+
+editMessage.oninput = () => {
+  localStorage.setItem("msg", editMessage.value);
+  messageText.innerText = editMessage.value;
+};
+
+/* Media upload */
+function addMedia() {
+  const file = fileUpload.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const items = JSON.parse(localStorage.getItem("media")) || [];
+    items.push({ name: file.name, data: reader.result });
+    localStorage.setItem("media", JSON.stringify(items));
+    loadMedia();
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadMedia() {
+  const list = document.getElementById("mediaList");
+  list.innerHTML = "";
+  const items = JSON.parse(localStorage.getItem("media")) || [];
+
+  items.forEach(item => {
+    if (item.data.startsWith("data:image")) {
+      const img = document.createElement("img");
+      img.src = item.data;
+      list.appendChild(img);
+    } else {
+      const link = document.createElement("a");
+      link.href = item.data;
+      link.textContent = item.name;
+      link.target = "_blank";
+      list.appendChild(link);
+    }
   });
 }
 
-function loadData() {
-  document.getElementById("title").innerText =
-    localStorage.getItem("vaultTitle") || document.getElementById("title").innerText;
-
-  document.getElementById("intro").innerText =
-    localStorage.getItem("vaultIntro") || document.getElementById("intro").innerText;
-
-  renderMemories();
-}
-
-document.getElementById("title").oninput = () =>
-  localStorage.setItem(
-    "vaultTitle",
-    document.getElementById("title").innerText
-  );
-
-document.getElementById("intro").oninput = () =>
-  localStorage.setItem(
-    "vaultIntro",
-    document.getElementById("intro").innerText
-  );
-
+/* Load saved content on start */
+window.onload = () => {
+  greetText.innerText = localStorage.getItem("greet") || greetText.innerText;
+  messageText.innerText = localStorage.getItem("msg") || messageText.innerText;
+};
 </script>
 
 </body>
