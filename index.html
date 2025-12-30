@@ -21,13 +21,37 @@
     position: relative;
   }
 
+  /* Buttons, timer, notebook, editor always above canvases */
+  #preview-btn,
+  #full-preview-btn,
+  #notebook,
+  #editor-ui,
+  #timer {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Make buttons fixed so always visible */
+  #preview-btn,
+  #full-preview-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    margin: 5px;
+    padding: 10px 15px;
+    background-color: #f7c873;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 15;
+  }
+
   #timer {
     font-size: 4rem;
     margin: 30px 0;
     color: #f7c873;
     text-shadow: 0 0 15px #f7c873, 0 0 30px #fff;
-    z-index: 2;
-    position: relative;
     transition: transform 0.5s ease;
   }
 
@@ -41,8 +65,6 @@
     padding: 20px;
     box-shadow: 0 0 20px rgba(247,200,115,0.7);
     margin-bottom: 20px;
-    z-index: 2;
-    position: relative;
     opacity: 0;
     transform: scale(0.8);
     transition: opacity 1s ease, transform 1s ease;
@@ -67,7 +89,7 @@
     color: #333;
   }
 
-  #pdf-upload, #preview-btn, #full-preview-btn, #editor-ui button {
+  #pdf-upload, #pdf-link, #editor-ui button {
     margin-top: 10px;
     margin-bottom: 10px;
     padding: 10px 15px;
@@ -96,6 +118,13 @@
     padding: 20px;
     box-shadow: 3px 3px 15px rgba(0,0,0,0.3);
     margin-bottom: 20px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  #editor-ui.show {
+    display: block;
+    opacity: 1;
   }
 
   #editor-ui textarea {
@@ -120,15 +149,12 @@
 </head>
 <body>
 
-<canvas id="background-canvas"></canvas>
-<canvas id="fireworks-canvas"></canvas>
-<canvas id="confetti-canvas"></canvas>
-
-<div id="timer">00:00:00</div>
-
 <!-- Buttons -->
 <button id="preview-btn">Edit Notebook (Password Required)</button>
 <button id="full-preview-btn">Full Preview Mode</button>
+
+<!-- Timer -->
+<div id="timer">00:00:00</div>
 
 <!-- Notebook -->
 <div id="notebook">
@@ -144,6 +170,11 @@
   <textarea id="editor-text"></textarea>
   <button id="save-editor">Save Messages</button>
 </div>
+
+<!-- Canvases -->
+<canvas id="background-canvas"></canvas>
+<canvas id="fireworks-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
 
 <!-- Sound Effects -->
 <audio id="firework-sound" src="https://freesound.org/data/previews/276/276027_5121236-lq.mp3"></audio>
@@ -200,106 +231,6 @@
   const countDownDate = new Date("Jan 1, 2026 00:00:00").getTime();
   const timerElement = document.getElementById('timer');
   const notebook = document.getElementById('notebook');
-  const messagesDiv = document.getElementById('messages');
-  const previewBtn = document.getElementById('preview-btn');
-  const fullPreviewBtn = document.getElementById('full-preview-btn');
-  const editorUI = document.getElementById('editor-ui');
-  const editorText = document.getElementById('editor-text');
-  const saveEditorBtn = document.getElementById('save-editor');
+  const messagesDiv =
 
-  let messages = [
-    "Welcome to 2026!",
-    "Let's make this year amazing!",
-    "Remember to stay positive.",
-    "Keep dreaming big.",
-    "Write down your goals and crush them!"
-  ];
-
-  function updateTimer() {
-    const now = new Date().getTime();
-    const distance = countDownDate-now;
-    if(distance>0){
-      const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-      const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
-      const seconds = Math.floor((distance%(1000*60))/1000);
-      timerElement.textContent = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-    } else {
-      clearInterval(timerInterval);
-      timerElement.style.display='none';
-      showNotebook();
-      playCelebrationSounds();
-      launchFireworks();
-      launchConfetti();
-    }
-  }
-  const timerInterval=setInterval(updateTimer,1000);
-
-  function showNotebook(){ notebook.classList.add('show'); renderMessages(); }
-  function renderMessages(){ messagesDiv.innerHTML=''; messages.forEach(msg=>{const p=document.createElement('p');p.textContent=msg; messagesDiv.appendChild(p);}); }
-
-  // ---------- PDF Upload ----------
-  const pdfUpload=document.getElementById('pdf-upload');
-  const pdfLink=document.getElementById('pdf-link');
-  pdfUpload.addEventListener('change', (e)=>{
-    const file=e.target.files[0];
-    if(file && file.type==="application/pdf"){
-      const url=URL.createObjectURL(file);
-      pdfLink.href=url;
-      pdfLink.textContent=`Open PDF: ${file.name}`;
-    } else { pdfLink.href="#"; pdfLink.textContent=""; alert("Please upload a valid PDF."); }
-  });
-
-  // ---------- Password Editor ----------
-  previewBtn.addEventListener('click', ()=>{
-    const password=prompt("Enter password to edit notebook:");
-    if(password==="newyear123"){editorUI.style.display='block'; editorText.value=messages.join('\n');}
-    else if(password!==null) alert("Incorrect password!");
-  });
-  saveEditorBtn.addEventListener('click', ()=>{
-    const edited=editorText.value.split('\n').filter(l=>l.trim()!=='');
-    if(edited.length>0){messages=edited; renderMessages(); alert("Messages saved!");}
-  });
-
-  fullPreviewBtn.addEventListener('click', ()=>{
-    timerElement.style.display='none';
-    notebook.classList.add('show');
-    renderMessages();
-  });
-
-  // ---------- Sound Effects ----------
-  const fireworkSound = document.getElementById('firework-sound');
-  const cheerSound = document.getElementById('cheer-sound');
-  function playCelebrationSounds(){
-    fireworkSound.currentTime=0;
-    cheerSound.currentTime=0;
-    fireworkSound.play();
-    setTimeout(()=>cheerSound.play(), 1000);
-  }
-
-  // ---------- Fireworks ----------
-  const fwCanvas=document.getElementById('fireworks-canvas');
-  const fwCtx=fwCanvas.getContext('2d');
-  fwCanvas.width=window.innerWidth;
-  fwCanvas.height=window.innerHeight;
-
-  class Firework{constructor(x,y){this.x=x; this.y=y; this.particles=[]; for(let i=0;i<50;i++){this.particles.push({x:x,y:y,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,alpha:1,color:`hsl(${Math.random()*360},100%,50%)`})}}update(){this.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.alpha-=0.02}); this.particles=this.particles.filter(p=>p.alpha>0);}draw(){this.particles.forEach(p=>{fwCtx.fillStyle=p.color; fwCtx.globalAlpha=p.alpha; fwCtx.beginPath(); fwCtx.arc(p.x,p.y,3,0,Math.PI*2); fwCtx.fill();}); fwCtx.globalAlpha=1;}}
-
-  let fireworks=[];
-  function launchFireworks(){const interval=setInterval(()=>{fireworks.push(new Firework(Math.random()*fwCanvas.width, Math.random()*fwCanvas.height/2));},300); setTimeout(()=>clearInterval(interval),5000); function animate(){fwCtx.fillStyle='rgba(0,0,0,0.2)'; fwCtx.fillRect(0,0,fwCanvas.width,fwCanvas.height); fireworks.forEach(f=>{f.update(); f.draw();}); fireworks=fireworks.filter(f=>f.particles.length>0); if(fireworks.length>0) requestAnimationFrame(animate);} animate();}
-
-  // ---------- Confetti ----------
-  const confCanvas=document.getElementById('confetti-canvas');
-  const confCtx=confCanvas.getContext('2d');
-  confCanvas.width=window.innerWidth; confCanvas.height=window.innerHeight;
-  class Confetti{constructor(){this.x=Math.random()*confCanvas.width; this.y=Math.random()*confCanvas.height-500; this.r=Math.random()*6+4; this.d=Math.random()*1+0.5; this.color=`hsl(${Math.random()*360},100%,50%)`;} update(){this.y+=this.d; if(this.y>confCanvas.height) this.y=-10;} draw(){confCtx.beginPath(); confCtx.fillStyle=this.color; confCtx.arc(this.x,this.y,this.r,0,Math.PI*2); confCtx.fill();}}
-  const confetti=[]; for(let i=0;i<200;i++) confetti.push(new Confetti());
-  function launchConfetti(){function animate(){confCtx.clearRect(0,0,confCanvas.width,confCanvas.height); confetti.forEach(c=>{c.update();c.draw();}); requestAnimationFrame(animate);} animate();}
-
-  window.addEventListener('resize', ()=>{
-    bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight;
-    fwCanvas.width=window.innerWidth; fwCanvas.height=window.innerHeight;
-    confCanvas.width=window.innerWidth; confCanvas.height=window.innerHeight;
-  });
-</script>
-</body>
-</html>
+  
