@@ -2,275 +2,304 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>New Year 💛</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Ultimate New Year Countdown Notebook</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #fffdf2;
-  --card: #fff4c1;
-  --accent: #f6d365;
-  --text: #3b2f1c;
-}
+  body {
+    font-family: 'Baloo 2', cursive;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    color: #fff;
+    position: relative;
+  }
 
-body {
-  margin: 0;
-  font-family: Poppins, Arial, sans-serif;
-  background: linear-gradient(180deg, #fffdf2, #fff1a8);
-  color: var(--text);
-}
+  #timer {
+    font-size: 4rem;
+    margin: 30px 0;
+    color: #f7c873;
+    text-shadow: 0 0 15px #f7c873, 0 0 30px #fff;
+    z-index: 2;
+    position: relative;
+    transition: transform 0.5s ease;
+  }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
+  #notebook {
+    display: none;
+    width: 90%;
+    max-width: 700px;
+    background: #fffdfa;
+    border: 3px solid #f7c873;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(247,200,115,0.7);
+    margin-bottom: 20px;
+    z-index: 2;
+    position: relative;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 1s ease, transform 1s ease;
+  }
 
-.card {
-  background: var(--card);
-  border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 15px 40px rgba(246,211,101,.35);
-}
+  #notebook.show {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+  }
 
-h1 {
-  text-align: center;
-  background: linear-gradient(90deg, #f6d365, #fda085);
-  -webkit-background-clip: text;
-  color: transparent;
-}
+  #notebook h2 {
+    text-align: center;
+    color: #f7c873;
+    margin-top: 0;
+  }
 
-#countdown {
-  text-align: center;
-  font-size: 1.6rem;
-  margin: 20px 0;
-}
+  #messages p {
+    border-bottom: 1px dashed #f7c873;
+    padding: 5px 0;
+    margin: 5px 0;
+    color: #333;
+  }
 
-button {
-  background: linear-gradient(135deg, #f6d365, #fda085);
-  border: none;
-  padding: 12px 18px;
-  border-radius: 14px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
+  #pdf-upload, #preview-btn, #full-preview-btn, #editor-ui button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    background-color: #f7c873;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  border-radius: 12px;
-  border: none;
-  margin-top: 10px;
-}
+  #pdf-link {
+    display: block;
+    margin-top: 10px;
+    color: #f7a600;
+    text-decoration: none;
+    font-weight: bold;
+  }
 
-.hidden { display: none; }
+  #editor-ui {
+    display: none;
+    width: 90%;
+    max-width: 700px;
+    background: #fffbea;
+    border: 2px dashed #f7c873;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 3px 3px 15px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+  }
 
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
+  #editor-ui textarea {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    border: 1px solid #f7c873;
+    padding: 10px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem;
+    resize: vertical;
+  }
 
-.tab {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  border-radius: 12px;
-  background: #ffeaa7;
-  cursor: pointer;
-}
-
-.tab.active {
-  background: linear-gradient(135deg,#f6d365,#fda085);
-  color: white;
-}
-
-.media img {
-  max-width: 100%;
-  border-radius: 12px;
-  margin-top: 10px;
-}
-
-.media a {
-  display: block;
-  margin-top: 8px;
-  color: #b8860b;
-}
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
 </style>
 </head>
-
 <body>
 
-<div class="container">
+<canvas id="background-canvas"></canvas>
+<canvas id="fireworks-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
 
-<!-- PUBLIC -->
-<div id="public" class="card">
-  <h1 id="title">Counting Down to 2026 💛</h1>
-  <div id="countdown"></div>
+<div id="timer">00:00:00</div>
 
-  <div id="reveal" class="hidden">
-    <h1 id="greeting">Happy New Year, my love 🌼</h1>
-    <p id="message"> TO my dear best friend, supporter, foodie, freaky and horny ass lover - Francis Emmanuel Dalusong,
-    Thank you for all of the unforgettable memories, first experiences, and love you gave me in 2025. I hope your 2026 will be full of happiness, laughter, wealth, and In-heat moments (you horndog). I love you so much, and Happy New Year, Mahal ko ^^</p>
-    <iframe id="spotify" style="border-radius:12px"
-      width="100%" height="152"
-      frameborder="0"
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
-    </iframe>
-    <div id="mediaPublic" class="media"></div>
-  </div>
+<!-- Buttons -->
+<button id="preview-btn">Edit Notebook (Password Required)</button>
+<button id="full-preview-btn">Full Preview Mode</button>
 
-  <button onclick="login()">Editor Login</button>
+<!-- Notebook -->
+<div id="notebook">
+  <h2>Happy New Year!</h2>
+  <div id="messages"></div>
+  <input type="file" id="pdf-upload" accept="application/pdf">
+  <a id="pdf-link" href="#" target="_blank"></a>
 </div>
 
-<!-- EDITOR -->
-<div id="editor" class="card hidden">
-  <h1>Editor Panel ✨</h1>
-
-  <div class="tabs">
-    <div class="tab active" onclick="showTab('content')">✍️ Content</div>
-    <div class="tab" onclick="showTab('media')">🖼️ Media</div>
-    <div class="tab" onclick="showTab('music')">🎶 Spotify</div>
-    <div class="tab" onclick="showTab('preview')">👀 Preview</div>
-  </div>
-
-  <div id="content">
-    <input id="editTitle" placeholder="Title">
-    <textarea id="editGreeting" placeholder="Greeting"></textarea>
-    <textarea id="editMessage" placeholder="Message"></textarea>
-  </div>
-
-  <div id="media" class="hidden">
-    <input type="file" id="fileUpload" accept="image/*,.pdf">
-    <button onclick="addFile()">Add File</button>
-    <div id="mediaEditor" class="media"></div>
-  </div>
-
-  <div id="music" class="hidden">
-    <p>Paste Spotify Embed URL</p>
-    <input id="spotifyInput" placeholder="https://open.spotify.com/embed/...">
-  </div>
-
-  <div id="preview" class="hidden">
-    <button onclick="forceReveal()">Preview After Midnight</button>
-    <div id="previewBox" class="card" style="margin-top:15px"></div>
-  </div>
-
-  <button onclick="closeEditor()">Exit Editor</button>
+<!-- Editor UI -->
+<div id="editor-ui">
+  <h3>Edit Notebook Messages</h3>
+  <textarea id="editor-text"></textarea>
+  <button id="save-editor">Save Messages</button>
 </div>
 
-</div>
+<!-- Sound Effects -->
+<audio id="firework-sound" src="https://freesound.org/data/previews/276/276027_5121236-lq.mp3"></audio>
+<audio id="cheer-sound" src="https://freesound.org/data/previews/320/320655_4939433-lq.mp3"></audio>
 
 <script>
-const TARGET = new Date("Jan 1, 2026 00:00:00").getTime();
-const PASSWORD = "love2026";
+  // ---------- Background Particles ----------
+  const bgCanvas = document.getElementById('background-canvas');
+  const bgCtx = bgCanvas.getContext('2d');
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
 
-/* Countdown */
-function updateCountdown() {
-  const diff = TARGET - Date.now();
-  if (diff <= 0) showReveal();
-  else {
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor(diff/3600000)%24;
-    const m = Math.floor(diff/60000)%60;
-    const s = Math.floor(diff/1000)%60;
-    countdown.innerText = `${d}d ${h}h ${m}m ${s}s`;
-  }
-}
-setInterval(updateCountdown,1000);
-updateCountdown();
-
-function showReveal() {
-  countdown.classList.add("hidden");
-  reveal.classList.remove("hidden");
-}
-
-/* Editor */
-function login() {
-  if (prompt("Password") === PASSWORD) {
-    public.classList.add("hidden");
-    editor.classList.remove("hidden");
-    loadData();
-  }
-}
-
-function closeEditor() {
-  editor.classList.add("hidden");
-  public.classList.remove("hidden");
-}
-
-function showTab(id) {
-  document.querySelectorAll("#editor > div:not(.tabs)").forEach(d=>d.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  event.target.classList.add("active");
-}
-
-/* Save text */
-["editTitle","editGreeting","editMessage"].forEach(id=>{
-  document.getElementById(id).oninput = ()=>{
-    localStorage.setItem(id, document.getElementById(id).value);
-    title.innerText = localStorage.getItem("editTitle");
-    greeting.innerText = localStorage.getItem("editGreeting");
-    message.innerText = localStorage.getItem("editMessage");
-  }
-});
-
-/* Files */
-function addFile() {
-  const file = fileUpload.files[0];
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    const data = JSON.parse(localStorage.getItem("files")) || [];
-    data.push({name:file.name, src:reader.result});
-    localStorage.setItem("files", JSON.stringify(data));
-    renderFiles();
-  };
-  reader.readAsDataURL(file);
-}
-
-function renderFiles() {
-  mediaEditor.innerHTML = mediaPublic.innerHTML = "";
-  const data = JSON.parse(localStorage.getItem("files")) || [];
-  data.forEach(f=>{
-    if (f.src.startsWith("data:image")) {
-      const img = document.createElement("img");
-      img.src = f.src;
-      mediaEditor.appendChild(img.cloneNode());
-      mediaPublic.appendChild(img);
-    } else {
-      const a = document.createElement("a");
-      a.href = f.src; a.textContent = f.name; a.target="_blank";
-      mediaEditor.appendChild(a.cloneNode(true));
-      mediaPublic.appendChild(a);
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random()*bgCanvas.width;
+      this.y = Math.random()*bgCanvas.height;
+      this.size = Math.random()*4+1;
+      this.speedX = (Math.random()-0.5)*1.5;
+      this.speedY = (Math.random()-0.5)*1.5;
+      this.color = `hsl(${Math.random()*360}, 80%, 60%)`;
+      this.alpha = Math.random()*0.7+0.3;
     }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if(this.x<0||this.x>bgCanvas.width||this.y<0||this.y>bgCanvas.height) this.reset();
+    }
+    draw() {
+      bgCtx.beginPath();
+      bgCtx.fillStyle = this.color;
+      bgCtx.globalAlpha = this.alpha;
+      bgCtx.shadowColor = this.color;
+      bgCtx.shadowBlur = 10;
+      bgCtx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      bgCtx.fill();
+      bgCtx.globalAlpha = 1;
+      bgCtx.shadowBlur=0;
+    }
+  }
+
+  const particles = [];
+  for(let i=0;i<100;i++) particles.push(new Particle());
+  function animateBackground() {
+    bgCtx.fillStyle = 'rgba(10,10,10,0.3)';
+    bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
+    particles.forEach(p=>{p.update(); p.draw();});
+    requestAnimationFrame(animateBackground);
+  }
+  animateBackground();
+  window.addEventListener('resize', ()=>{bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight;});
+
+  // ---------- Countdown Timer & Notebook ----------
+  const countDownDate = new Date("Jan 1, 2026 00:00:00").getTime();
+  const timerElement = document.getElementById('timer');
+  const notebook = document.getElementById('notebook');
+  const messagesDiv = document.getElementById('messages');
+  const previewBtn = document.getElementById('preview-btn');
+  const fullPreviewBtn = document.getElementById('full-preview-btn');
+  const editorUI = document.getElementById('editor-ui');
+  const editorText = document.getElementById('editor-text');
+  const saveEditorBtn = document.getElementById('save-editor');
+
+  let messages = [
+    "Welcome to 2026!",
+    "Let's make this year amazing!",
+    "Remember to stay positive.",
+    "Keep dreaming big.",
+    "Write down your goals and crush them!"
+  ];
+
+  function updateTimer() {
+    const now = new Date().getTime();
+    const distance = countDownDate-now;
+    if(distance>0){
+      const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+      const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
+      const seconds = Math.floor((distance%(1000*60))/1000);
+      timerElement.textContent = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    } else {
+      clearInterval(timerInterval);
+      timerElement.style.display='none';
+      showNotebook();
+      playCelebrationSounds();
+      launchFireworks();
+      launchConfetti();
+    }
+  }
+  const timerInterval=setInterval(updateTimer,1000);
+
+  function showNotebook(){ notebook.classList.add('show'); renderMessages(); }
+  function renderMessages(){ messagesDiv.innerHTML=''; messages.forEach(msg=>{const p=document.createElement('p');p.textContent=msg; messagesDiv.appendChild(p);}); }
+
+  // ---------- PDF Upload ----------
+  const pdfUpload=document.getElementById('pdf-upload');
+  const pdfLink=document.getElementById('pdf-link');
+  pdfUpload.addEventListener('change', (e)=>{
+    const file=e.target.files[0];
+    if(file && file.type==="application/pdf"){
+      const url=URL.createObjectURL(file);
+      pdfLink.href=url;
+      pdfLink.textContent=`Open PDF: ${file.name}`;
+    } else { pdfLink.href="#"; pdfLink.textContent=""; alert("Please upload a valid PDF."); }
   });
-}
 
-/* Spotify */
-spotifyInput.oninput = ()=>{
-  localStorage.setItem("spotify", spotifyInput.value);
-  spotify.src = spotifyInput.value;
-};
+  // ---------- Password Editor ----------
+  previewBtn.addEventListener('click', ()=>{
+    const password=prompt("Enter password to edit notebook:");
+    if(password==="newyear123"){editorUI.style.display='block'; editorText.value=messages.join('\n');}
+    else if(password!==null) alert("Incorrect password!");
+  });
+  saveEditorBtn.addEventListener('click', ()=>{
+    const edited=editorText.value.split('\n').filter(l=>l.trim()!=='');
+    if(edited.length>0){messages=edited; renderMessages(); alert("Messages saved!");}
+  });
 
-/* Preview */
-function forceReveal() {
-  previewBox.innerHTML = reveal.outerHTML;
-  previewBox.querySelector("#countdown")?.remove();
-}
+  fullPreviewBtn.addEventListener('click', ()=>{
+    timerElement.style.display='none';
+    notebook.classList.add('show');
+    renderMessages();
+  });
 
-/* Load */
-function loadData() {
-  editTitle.value = localStorage.getItem("editTitle") || title.innerText;
-  editGreeting.value = localStorage.getItem("editGreeting") || greeting.innerText;
-  editMessage.value = localStorage.getItem("editMessage") || message.innerText;
-  spotify.src = localStorage.getItem("spotify") || "";
-  spotifyInput.value = spotify.src;
-  renderFiles();
-}
+  // ---------- Sound Effects ----------
+  const fireworkSound = document.getElementById('firework-sound');
+  const cheerSound = document.getElementById('cheer-sound');
+  function playCelebrationSounds(){
+    fireworkSound.currentTime=0;
+    cheerSound.currentTime=0;
+    fireworkSound.play();
+    setTimeout(()=>cheerSound.play(), 1000);
+  }
+
+  // ---------- Fireworks ----------
+  const fwCanvas=document.getElementById('fireworks-canvas');
+  const fwCtx=fwCanvas.getContext('2d');
+  fwCanvas.width=window.innerWidth;
+  fwCanvas.height=window.innerHeight;
+
+  class Firework{constructor(x,y){this.x=x; this.y=y; this.particles=[]; for(let i=0;i<50;i++){this.particles.push({x:x,y:y,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,alpha:1,color:`hsl(${Math.random()*360},100%,50%)`})}}update(){this.particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.alpha-=0.02}); this.particles=this.particles.filter(p=>p.alpha>0);}draw(){this.particles.forEach(p=>{fwCtx.fillStyle=p.color; fwCtx.globalAlpha=p.alpha; fwCtx.beginPath(); fwCtx.arc(p.x,p.y,3,0,Math.PI*2); fwCtx.fill();}); fwCtx.globalAlpha=1;}}
+
+  let fireworks=[];
+  function launchFireworks(){const interval=setInterval(()=>{fireworks.push(new Firework(Math.random()*fwCanvas.width, Math.random()*fwCanvas.height/2));},300); setTimeout(()=>clearInterval(interval),5000); function animate(){fwCtx.fillStyle='rgba(0,0,0,0.2)'; fwCtx.fillRect(0,0,fwCanvas.width,fwCanvas.height); fireworks.forEach(f=>{f.update(); f.draw();}); fireworks=fireworks.filter(f=>f.particles.length>0); if(fireworks.length>0) requestAnimationFrame(animate);} animate();}
+
+  // ---------- Confetti ----------
+  const confCanvas=document.getElementById('confetti-canvas');
+  const confCtx=confCanvas.getContext('2d');
+  confCanvas.width=window.innerWidth; confCanvas.height=window.innerHeight;
+  class Confetti{constructor(){this.x=Math.random()*confCanvas.width; this.y=Math.random()*confCanvas.height-500; this.r=Math.random()*6+4; this.d=Math.random()*1+0.5; this.color=`hsl(${Math.random()*360},100%,50%)`;} update(){this.y+=this.d; if(this.y>confCanvas.height) this.y=-10;} draw(){confCtx.beginPath(); confCtx.fillStyle=this.color; confCtx.arc(this.x,this.y,this.r,0,Math.PI*2); confCtx.fill();}}
+  const confetti=[]; for(let i=0;i<200;i++) confetti.push(new Confetti());
+  function launchConfetti(){function animate(){confCtx.clearRect(0,0,confCanvas.width,confCanvas.height); confetti.forEach(c=>{c.update();c.draw();}); requestAnimationFrame(animate);} animate();}
+
+  window.addEventListener('resize', ()=>{
+    bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight;
+    fwCanvas.width=window.innerWidth; fwCanvas.height=window.innerHeight;
+    confCanvas.width=window.innerWidth; confCanvas.height=window.innerHeight;
+  });
 </script>
-
 </body>
 </html>
-
