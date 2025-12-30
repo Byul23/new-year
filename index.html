@@ -111,6 +111,25 @@
     font-weight: bold;
   }
 
+  .paragraph {
+  margin-bottom: 20px;
+}
+
+.notebook-line {
+  border-bottom: 1px dashed #f7c873;
+  padding: 6px 12px 10px 32px; /* indent here */
+  margin-bottom: 6px;
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.8;
+  font-size: 1rem;
+  color: #333;
+}
+  
+.paragraph .notebook-line:first-child {
+  padding-left: 48px;
+}
+
   #editor-ui {
     display: none;
     width: 90%;
@@ -280,7 +299,40 @@ let messages = [
   const timerInterval=setInterval(updateTimer,1000);
 
   function showNotebook(){ notebook.classList.add('show'); renderMessages(); }
-  function renderMessages(){ messagesDiv.innerHTML=''; messages.forEach(msg=>{const p=document.createElement('p');p.textContent=msg; messagesDiv.appendChild(p);}); }
+ function renderMessages() {
+  messagesDiv.innerHTML = '';
+
+  messages.forEach(paragraph => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'paragraph';
+
+    // Split paragraph into visual lines (by sentence length)
+    const words = paragraph.split(' ');
+    let line = '';
+
+    words.forEach(word => {
+      if ((line + word).length > 60) {
+        createLine(line, wrapper);
+        line = word + ' ';
+      } else {
+        line += word + ' ';
+      }
+    });
+
+    if (line.trim() !== '') {
+      createLine(line, wrapper);
+    }
+
+    messagesDiv.appendChild(wrapper);
+  });
+}
+
+function createLine(text, container) {
+  const div = document.createElement('div');
+  div.className = 'notebook-line';
+  div.textContent = text.trim();
+  container.appendChild(div);
+}
 
   // ---------- PDF Upload ----------
   const pdfUpload=document.getElementById('pdf-upload');
@@ -358,5 +410,6 @@ let messages = [
 </script>
 </body>
 </html>
+
 
 
