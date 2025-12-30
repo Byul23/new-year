@@ -7,131 +7,104 @@
 
 <style>
 :root {
-  --bg: #fffdf5;
-  --card: #fff7cc;
+  --bg: #fffdf2;
+  --card: #fff4c1;
   --accent: #f6d365;
-  --accent2: #fda085;
-  --text: #3a2f1d;
+  --text: #3b2f1c;
 }
 
 body {
   margin: 0;
-  font-family: "Poppins", Arial, sans-serif;
-  background: linear-gradient(180deg, var(--bg), #fff3b0);
+  font-family: Poppins, Arial, sans-serif;
+  background: linear-gradient(180deg, #fffdf2, #fff1a8);
   color: var(--text);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
 }
 
 .container {
-  width: 100%;
   max-width: 900px;
+  margin: auto;
   padding: 20px;
 }
 
 .card {
   background: var(--card);
-  border-radius: 24px;
-  padding: 25px;
-  box-shadow: 0 10px 40px rgba(246,211,101,0.35);
-  animation: fadeUp 1s ease;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 15px 40px rgba(246,211,101,.35);
 }
 
 h1 {
   text-align: center;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  background: linear-gradient(90deg, #f6d365, #fda085);
   -webkit-background-clip: text;
   color: transparent;
 }
 
 #countdown {
-  font-size: 1.6rem;
   text-align: center;
+  font-size: 1.6rem;
   margin: 20px 0;
 }
 
-.hidden { display: none; }
-
 button {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background: linear-gradient(135deg, #f6d365, #fda085);
   border: none;
   padding: 12px 18px;
   border-radius: 14px;
-  color: #fff;
+  color: white;
   font-weight: bold;
   cursor: pointer;
 }
 
-input, textarea, select {
+input, textarea {
   width: 100%;
   padding: 10px;
   border-radius: 12px;
   border: none;
-  margin-top: 8px;
+  margin-top: 10px;
 }
+
+.hidden { display: none; }
 
 .tabs {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  margin-bottom: 15px;
 }
 
 .tab {
   flex: 1;
   text-align: center;
   padding: 10px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #ffeaa7;
   cursor: pointer;
 }
 
 .tab.active {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  background: linear-gradient(135deg,#f6d365,#fda085);
   color: white;
 }
 
-.editor-section {
-  margin-top: 20px;
+.media img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 10px;
 }
 
-.preview-mobile {
-  max-width: 375px;
-  margin: auto;
-  border: 3px dashed var(--accent);
-  border-radius: 20px;
-}
-
-/* Spotify Wrapped style floating shapes */
-.shape {
-  position: fixed;
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle, var(--accent), transparent);
-  animation: float 8s infinite alternate;
-  opacity: 0.4;
-}
-
-@keyframes float {
-  from { transform: translateY(0); }
-  to { transform: translateY(-60px); }
+.media a {
+  display: block;
+  margin-top: 8px;
+  color: #b8860b;
 }
 </style>
 </head>
 
 <body>
 
-<div class="shape" style="top:10%;left:10%"></div>
-<div class="shape" style="top:70%;left:80%"></div>
-
 <div class="container">
 
-<!-- PUBLIC VIEW -->
+<!-- PUBLIC -->
 <div id="public" class="card">
   <h1 id="title">Counting Down to 2026 💛</h1>
   <div id="countdown"></div>
@@ -139,10 +112,15 @@ input, textarea, select {
   <div id="reveal" class="hidden">
     <h1 id="greeting">Happy New Year, my love 🌼</h1>
     <p id="message">Every year is better with you.</p>
-    <audio id="music" controls></audio>
+    <iframe id="spotify" style="border-radius:12px"
+      width="100%" height="152"
+      frameborder="0"
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture">
+    </iframe>
+    <div id="mediaPublic" class="media"></div>
   </div>
 
-  <button onclick="openEditor()">Editor Login</button>
+  <button onclick="login()">Editor Login</button>
 </div>
 
 <!-- EDITOR -->
@@ -151,34 +129,31 @@ input, textarea, select {
 
   <div class="tabs">
     <div class="tab active" onclick="showTab('content')">✍️ Content</div>
-    <div class="tab" onclick="showTab('theme')">🎨 Theme</div>
-    <div class="tab" onclick="showTab('music')">🎶 Music</div>
+    <div class="tab" onclick="showTab('media')">🖼️ Media</div>
+    <div class="tab" onclick="showTab('music')">🎶 Spotify</div>
     <div class="tab" onclick="showTab('preview')">👀 Preview</div>
   </div>
 
-  <!-- CONTENT -->
-  <div id="content" class="editor-section">
+  <div id="content">
     <input id="editTitle" placeholder="Title">
     <textarea id="editGreeting" placeholder="Greeting"></textarea>
     <textarea id="editMessage" placeholder="Message"></textarea>
   </div>
 
-  <!-- THEME -->
-  <div id="theme" class="editor-section hidden">
-    <label>Accent Color</label>
-    <input type="color" id="accentPicker">
+  <div id="media" class="hidden">
+    <input type="file" id="fileUpload" accept="image/*,.pdf">
+    <button onclick="addFile()">Add File</button>
+    <div id="mediaEditor" class="media"></div>
   </div>
 
-  <!-- MUSIC -->
-  <div id="musicTab" class="editor-section hidden">
-    <label>Upload Song (mp3)</label>
-    <input type="file" accept="audio/*" id="songUpload">
+  <div id="music" class="hidden">
+    <p>Paste Spotify Embed URL</p>
+    <input id="spotifyInput" placeholder="https://open.spotify.com/embed/...">
   </div>
 
-  <!-- PREVIEW -->
-  <div id="preview" class="editor-section hidden">
-    <button onclick="forceReveal()">Preview After Countdown</button>
-    <div class="preview-mobile" id="previewBox"></div>
+  <div id="preview" class="hidden">
+    <button onclick="forceReveal()">Preview After Midnight</button>
+    <div id="previewBox" class="card" style="margin-top:15px"></div>
   </div>
 
   <button onclick="closeEditor()">Exit Editor</button>
@@ -190,27 +165,29 @@ input, textarea, select {
 const TARGET = new Date("Jan 1, 2026 00:00:00").getTime();
 const PASSWORD = "love2026";
 
+/* Countdown */
 function updateCountdown() {
-  const now = Date.now();
-  const diff = TARGET - now;
-  if (diff <= 0) {
-    document.getElementById("countdown").classList.add("hidden");
-    document.getElementById("reveal").classList.remove("hidden");
-    return;
+  const diff = TARGET - Date.now();
+  if (diff <= 0) showReveal();
+  else {
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor(diff/3600000)%24;
+    const m = Math.floor(diff/60000)%60;
+    const s = Math.floor(diff/1000)%60;
+    countdown.innerText = `${d}d ${h}h ${m}m ${s}s`;
   }
-  const d = Math.floor(diff/86400000);
-  const h = Math.floor(diff/3600000)%24;
-  const m = Math.floor(diff/60000)%60;
-  const s = Math.floor(diff/1000)%60;
-  countdown.innerText = `${d}d ${h}h ${m}m ${s}s`;
 }
 setInterval(updateCountdown,1000);
 updateCountdown();
 
+function showReveal() {
+  countdown.classList.add("hidden");
+  reveal.classList.remove("hidden");
+}
+
 /* Editor */
-function openEditor() {
-  const pass = prompt("Password?");
-  if (pass === PASSWORD) {
+function login() {
+  if (prompt("Password") === PASSWORD) {
     public.classList.add("hidden");
     editor.classList.remove("hidden");
     loadData();
@@ -222,14 +199,14 @@ function closeEditor() {
   public.classList.remove("hidden");
 }
 
-function showTab(name) {
-  document.querySelectorAll(".editor-section").forEach(e=>e.classList.add("hidden"));
-  document.getElementById(name).classList.remove("hidden");
+function showTab(id) {
+  document.querySelectorAll("#editor > div:not(.tabs)").forEach(d=>d.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   event.target.classList.add("active");
 }
 
-/* Save Content */
+/* Save text */
 ["editTitle","editGreeting","editMessage"].forEach(id=>{
   document.getElementById(id).oninput = ()=>{
     localStorage.setItem(id, document.getElementById(id).value);
@@ -239,28 +216,57 @@ function showTab(name) {
   }
 });
 
-/* Theme */
-accentPicker.oninput = ()=>{
-  document.documentElement.style.setProperty("--accent", accentPicker.value);
-};
-
-/* Music */
-songUpload.onchange = ()=>{
-  const file = songUpload.files[0];
+/* Files */
+function addFile() {
+  const file = fileUpload.files[0];
   const reader = new FileReader();
-  reader.onload = ()=> music.src = reader.result;
+  reader.onload = ()=>{
+    const data = JSON.parse(localStorage.getItem("files")) || [];
+    data.push({name:file.name, src:reader.result});
+    localStorage.setItem("files", JSON.stringify(data));
+    renderFiles();
+  };
   reader.readAsDataURL(file);
+}
+
+function renderFiles() {
+  mediaEditor.innerHTML = mediaPublic.innerHTML = "";
+  const data = JSON.parse(localStorage.getItem("files")) || [];
+  data.forEach(f=>{
+    if (f.src.startsWith("data:image")) {
+      const img = document.createElement("img");
+      img.src = f.src;
+      mediaEditor.appendChild(img.cloneNode());
+      mediaPublic.appendChild(img);
+    } else {
+      const a = document.createElement("a");
+      a.href = f.src; a.textContent = f.name; a.target="_blank";
+      mediaEditor.appendChild(a.cloneNode(true));
+      mediaPublic.appendChild(a);
+    }
+  });
+}
+
+/* Spotify */
+spotifyInput.oninput = ()=>{
+  localStorage.setItem("spotify", spotifyInput.value);
+  spotify.src = spotifyInput.value;
 };
 
 /* Preview */
 function forceReveal() {
-  previewBox.innerHTML = document.getElementById("reveal").outerHTML;
+  previewBox.innerHTML = reveal.outerHTML;
+  previewBox.querySelector("#countdown")?.remove();
 }
 
+/* Load */
 function loadData() {
   editTitle.value = localStorage.getItem("editTitle") || title.innerText;
   editGreeting.value = localStorage.getItem("editGreeting") || greeting.innerText;
   editMessage.value = localStorage.getItem("editMessage") || message.innerText;
+  spotify.src = localStorage.getItem("spotify") || "";
+  spotifyInput.value = spotify.src;
+  renderFiles();
 }
 </script>
 
