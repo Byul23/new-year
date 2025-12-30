@@ -87,6 +87,12 @@
     color: #333;
   }
 
+  #messages p {
+  text-align: justify;
+  text-justify: inter-word;
+  line-height: 1.8;
+}
+
   #pdf-upload, #pdf-link, #editor-ui button {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -239,13 +245,21 @@
   const notebook = document.getElementById('notebook');
   const messagesDiv = document.getElementById('messages');
 
-  let messages = [
-    "Welcome to 2026!",
-    "Let's make this year amazing!",
-    "Remember to stay positive.",
-    "Keep dreaming big.",
-    "Write down your goals and crush them!"
-  ];
+let messages = [
+  "To my dear best friend, supporter, foodie, freaky and horny ass lover – Francis Emmanuel Dalusong,",
+
+  "Meeting, getting to know you, and even being lucky enough that I could get to be your lover is the biggest highlight of my entire 2025 year. I still remember the kilig I felt when you moved your chair beside me just to not make me lonely. I didn't expect that the “kuya” Francis who I admired and look up to would become so close and dear to my life, even becoming as much as my “mahal”. To my kahel na langit – who I could go to when my life feels hard and heavy, to my Dilaw – ever so radiant, warm, and gentle that even when clouds cover your presence, I still feel the warmth you exude, and mostly my tangerine – the one who stayed, the one I breathe, and the one who cures my tiredness and sickness, I love you and appreciate you so much.",
+
+  "The strings you've been pulling in my heart have been making melodious symphonies that even I can't help but be immersed in. I didn't expect that kolorcoaster would be beside me, bringing color to my entire life. If one person were to have every color, it would be you, mahal – smiling and flashing the brightest white light that helps me ground myself and light up my dark days. You gave me more intense feelings than any love song could ever compare to.",
+
+  "I don't have any complaints this year, but my only regret is that I have hurt you with my careless and immature antics. I may not be the richest, brightest, smartest, and most privileged person in the world, but thank you for accepting and loving me as I am, mahal ko.",
+
+  "Thank you for all of the unforgettable memories, first experiences, and love you gave me in 2025. I hope your 2026 will be full of happiness, laughter, wealth, and in-heat moments (you absolute horndog). I love you so much, and happy new year, mahal ko ^^",
+
+  "Continue being your genuine and ever so effervescent self ^^",
+
+  "Cheers to 2026. To many more dates and moments with you, mahal <3"
+];
 
   function updateTimer() {
     const now = new Date().getTime();
@@ -345,3 +359,4 @@
 </script>
 </body>
 </html>
+
