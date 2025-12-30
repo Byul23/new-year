@@ -22,8 +22,7 @@
   }
 
   /* Buttons, timer, notebook, editor always above canvases */
-  #preview-btn,
-  #full-preview-btn,
+  #edit-btn,
   #notebook,
   #editor-ui,
   #timer {
@@ -31,13 +30,11 @@
     z-index: 10;
   }
 
-  /* Fixed buttons */
-  #preview-btn,
-  #full-preview-btn {
+  /* Fixed edit button */
+  #edit-btn {
     position: fixed;
     top: 20px;
     right: 20px;
-    margin: 5px;
     padding: 10px 15px;
     background-color: #f7c873; /* golden accent */
     border: none;
@@ -153,9 +150,8 @@
 </head>
 <body>
 
-<!-- Buttons -->
-<button id="preview-btn">Edit Notebook (Password Required)</button>
-<button id="full-preview-btn">Full Preview Mode</button>
+<!-- Edit Button -->
+<button id="edit-btn">Edit</button>
 
 <!-- Timer -->
 <div id="timer">00:00:00</div>
@@ -173,6 +169,7 @@
   <h3>Edit Notebook Messages</h3>
   <textarea id="editor-text"></textarea>
   <button id="save-editor">Save Messages</button>
+  <button id="full-preview-editor">Full Preview Mode</button>
 </div>
 
 <!-- Canvases -->
@@ -185,62 +182,62 @@
 <audio id="cheer-sound" src="https://freesound.org/data/previews/320/320655_4939433-lq.mp3"></audio>
 
 <script>
-  // ---------- Background Particles ----------
+  // ---------- Background Stars ----------
   const bgCanvas = document.getElementById('background-canvas');
   const bgCtx = bgCanvas.getContext('2d');
   bgCanvas.width = window.innerWidth;
   bgCanvas.height = window.innerHeight;
 
-  class Particle {
-    constructor() { this.reset(); }
+  class Star {
+    constructor() {
+      this.reset();
+    }
     reset() {
       this.x = Math.random()*bgCanvas.width;
       this.y = Math.random()*bgCanvas.height;
-      this.size = Math.random()*4+1;
-      this.speedX = (Math.random()-0.5)*1.5;
-      this.speedY = (Math.random()-0.5)*1.5;
-      this.color = `hsl(${Math.random()*60+40}, 80%, 60%)`; // pastel-toned particles
-      this.alpha = Math.random()*0.7+0.3;
+      this.size = Math.random()*2+1;
+      this.speedY = Math.random()*0.3+0.1;
+      this.twinkle = Math.random()*0.5+0.5;
     }
     update() {
-      this.x += this.speedX;
       this.y += this.speedY;
-      if(this.x<0||this.x>bgCanvas.width||this.y<0||this.y>bgCanvas.height) this.reset();
+      if(this.y>bgCanvas.height) this.y=0;
     }
     draw() {
+      bgCtx.fillStyle = `rgba(255, 255, 255, ${this.twinkle})`;
       bgCtx.beginPath();
-      bgCtx.fillStyle = this.color;
-      bgCtx.globalAlpha = this.alpha;
-      bgCtx.shadowColor = this.color;
-      bgCtx.shadowBlur = 10;
-      bgCtx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      bgCtx.moveTo(this.x,this.y-this.size);
+      for(let i=0;i<5;i++){
+        bgCtx.lineTo(
+          this.x + this.size*Math.cos((18+i*72)*Math.PI/180),
+          this.y - this.size*Math.sin((18+i*72)*Math.PI/180)
+        );
+        bgCtx.lineTo(
+          this.x + this.size/2*Math.cos((54+i*72)*Math.PI/180),
+          this.y - this.size/2*Math.sin((54+i*72)*Math.PI/180)
+        );
+      }
       bgCtx.fill();
-      bgCtx.globalAlpha = 1;
-      bgCtx.shadowBlur=0;
     }
   }
 
-  const particles = [];
-  for(let i=0;i<100;i++) particles.push(new Particle());
-  function animateBackground() {
-    bgCtx.fillStyle = 'rgba(255,249,196,0.3)'; // lighten for pastel
+  const stars = [];
+  for(let i=0;i<150;i++) stars.push(new Star());
+
+  function animateStars() {
+    bgCtx.fillStyle = 'rgba(255,249,196,0.3)';
     bgCtx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
-    particles.forEach(p=>{p.update(); p.draw();});
-    requestAnimationFrame(animateBackground);
+    stars.forEach(s=>{s.update(); s.draw();});
+    requestAnimationFrame(animateStars);
   }
-  animateBackground();
+  animateStars();
   window.addEventListener('resize', ()=>{bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight;});
 
-  // ---------- Countdown Timer & Notebook ----------
+  // ---------- Countdown ----------
   const countDownDate = new Date("Jan 1, 2026 00:00:00").getTime();
   const timerElement = document.getElementById('timer');
   const notebook = document.getElementById('notebook');
   const messagesDiv = document.getElementById('messages');
-  const previewBtn = document.getElementById('preview-btn');
-  const fullPreviewBtn = document.getElementById('full-preview-btn');
-  const editorUI = document.getElementById('editor-ui');
-  const editorText = document.getElementById('editor-text');
-  const saveEditorBtn = document.getElementById('save-editor');
 
   let messages = [
     "Welcome to 2026!",
@@ -284,34 +281,33 @@
     } else { pdfLink.href="#"; pdfLink.textContent=""; alert("Please upload a valid PDF."); }
   });
 
-  // ---------- Password Editor ----------
-  previewBtn.addEventListener('click', ()=>{
-    const password = prompt("Enter password to edit notebook:");
-    if(password === "newyear123"){
-      editorUI.classList.add('show'); 
+  // ---------- Edit Button ----------
+  const editBtn = document.getElementById('edit-btn');
+  const editorUI = document.getElementById('editor-ui');
+  const editorText = document.getElementById('editor-text');
+  const saveEditorBtn = document.getElementById('save-editor');
+  const fullPreviewEditorBtn = document.getElementById('full-preview-editor');
+
+  editBtn.addEventListener('click', ()=>{
+    const password = prompt("Enter password to edit:");
+    if(password==="newyear123"){
+      editorUI.classList.add('show');
       editorText.value = messages.join('\n');
-    } else if(password !== null) alert("Incorrect password!");
+    } else if(password!==null){
+      alert("Incorrect password!");
+    }
   });
+
   saveEditorBtn.addEventListener('click', ()=>{
     const edited = editorText.value.split('\n').filter(l=>l.trim()!=='');
     if(edited.length>0){messages=edited; renderMessages(); alert("Messages saved!");}
   });
 
-  fullPreviewBtn.addEventListener('click', ()=>{
+  fullPreviewEditorBtn.addEventListener('click', ()=>{
     timerElement.style.display='none';
     notebook.classList.add('show');
     renderMessages();
   });
-
-  // ---------- Sound Effects ----------
-  const fireworkSound = document.getElementById('firework-sound');
-  const cheerSound = document.getElementById('cheer-sound');
-  function playCelebrationSounds(){
-    fireworkSound.currentTime=0;
-    cheerSound.currentTime=0;
-    fireworkSound.play();
-    setTimeout(()=>cheerSound.play(), 1000);
-  }
 
   // ---------- Fireworks ----------
   const fwCanvas=document.getElementById('fireworks-canvas');
@@ -330,6 +326,16 @@
   class Confetti{constructor(){this.x=Math.random()*confCanvas.width; this.y=Math.random()*confCanvas.height-500; this.r=Math.random()*6+4; this.d=Math.random()*1+0.5; this.color=`hsl(${Math.random()*60+40},100%,50%)`;} update(){this.y+=this.d; if(this.y>confCanvas.height) this.y=-10;} draw(){confCtx.beginPath(); confCtx.fillStyle=this.color; confCtx.arc(this.x,this.y,this.r,0,Math.PI*2); confCtx.fill();}}
   const confetti=[]; for(let i=0;i<200;i++) confetti.push(new Confetti());
   function launchConfetti(){function animate(){confCtx.clearRect(0,0,confCanvas.width,confCanvas.height); confetti.forEach(c=>{c.update();c.draw();}); requestAnimationFrame(animate);} animate();}
+
+  // ---------- Sounds ----------
+  const fireworkSound = document.getElementById('firework-sound');
+  const cheerSound = document.getElementById('cheer-sound');
+  function playCelebrationSounds(){
+    fireworkSound.currentTime=0;
+    cheerSound.currentTime=0;
+    fireworkSound.play();
+    setTimeout(()=>cheerSound.play(),1000);
+  }
 
   window.addEventListener('resize', ()=>{
     bgCanvas.width=window.innerWidth; bgCanvas.height=window.innerHeight;
